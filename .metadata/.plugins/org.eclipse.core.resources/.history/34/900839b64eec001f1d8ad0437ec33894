@@ -1,0 +1,81 @@
+package com.example.inventory.service;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.inventory.entity.Inventory;
+import com.example.inventory.repository.InventoryRepository;
+
+@Service
+public class InventoryServiceImpl implements InventoryService {
+	
+	@Autowired
+	private InventoryRepository repo;
+	
+	@Override
+	public Inventory addItem(Inventory item) {
+			return repo.save(item);
+	}
+
+	@Override
+	public List<Inventory> getAllItems() {
+		List<Inventory> list= repo.findAll();
+		return list;
+				
+	}
+
+	@Override
+	public Inventory deleteItem(Long id) {
+		// TODO Auto-generated method stub
+		if(repo.existsById(id)) {
+			Inventory item= repo.findById(id).get();
+			repo.deleteById(id);	
+			return item;
+		}else {
+			return null;
+		}
+
+	}
+
+	@Override
+	public Inventory updateItem(Long id, Inventory item) {
+		if(repo.existsById(id)) {
+			item.setPid(id);
+			return repo.save(item);
+		}
+		return null;
+	}
+	
+	@Override
+	public String generateInventoryReport() {
+		List<Inventory> inventoryList = repo.findAll();
+		String filePath = "C:/Users/Public/Downloads/inventory_report.csv";  // Adjust path as needed
+
+		try (FileWriter writer = new FileWriter(filePath)) {
+			// Writing CSV headers
+			writer.append("ID, Name, Quantity, Price\n");
+
+			// Writing data
+			for (Inventory item : inventoryList) {
+				writer.append(item.getPid() + ",")
+					  .append(item.getName() + ",")
+					  .append(item.getQuantity() + ",")
+					  .append(item.getPrice() + "\n");
+			}
+
+			System.out.println("Inventory report saved at: " + filePath);
+			return filePath;
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "Error generating report!";
+		}
+	}
+	
+	
+
+}

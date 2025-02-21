@@ -1,0 +1,17 @@
+# Tomcat server port number
+server.port=8080
+
+# Context path (optional)
+server.servlet.context-path=/ems
+
+# Disable persistent sessions
+server.servlet.session.persistent=false
+
+# MongoDB Configuration
+spring.data.mongodb.uri=mongodb://localhost:27017/InventoryManagementSystem
+
+# Enable MongoDB logging (optional)
+logging.level.org.springframework.data.mongodb.core.MongoTemplate=DEBUG
+
+# Disable Open Session in View (not applicable for MongoDB but keeping it for consistency)
+spring.jpa.open-in-view=false

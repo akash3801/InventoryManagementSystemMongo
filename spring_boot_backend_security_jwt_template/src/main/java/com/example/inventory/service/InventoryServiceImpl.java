@@ -1,0 +1,89 @@
+package com.example.inventory.service;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.example.inventory.entity.Inventory;
+import com.example.inventory.repository.InventoryRepository;
+
+@Service
+public class InventoryServiceImpl implements InventoryService {
+	
+	@Autowired
+	private InventoryRepository repo;
+	
+	@Override
+	public Inventory addItem(Inventory item) {
+			return repo.save(item);
+	}
+
+	@Override
+	public List<Inventory> getAllItems() {
+		List<Inventory> list= repo.findAll();
+		return list;
+				
+	}
+
+	@Override
+	public Inventory deleteItem(String id) {
+	    if (repo.existsById(id)) {
+	        Inventory item = repo.findById(id).orElse(null);
+	        if (item != null) {
+	            repo.deleteById(id);
+	        }
+	        return item;
+	    }
+	    return null;
+	}
+
+	@Override
+	public Inventory updateItem(String id, Inventory item) {
+	    if (repo.existsById(id)) {
+	        item.setId(id); // Ensure the existing ID is retained
+	        return repo.save(item);
+	    }
+	    return null;
+	}
+	
+	@Override
+	public String generateInventoryReport() {
+	    List<Inventory> inventoryList = repo.findAll();
+
+	    // Check if inventory list is empty
+	    if (inventoryList.isEmpty()) {
+	        return "No inventory data available to generate report!";
+	    }
+
+	    String filePath = "C:/Users/Public/Downloads/inventory_report.csv";  // Adjust path as needed
+
+	    try (FileWriter writer = new FileWriter(filePath)) {
+	        // Writing CSV headers
+	        writer.append("Sr. No., Name, Quantity, Price\n");
+
+	        // Writing data
+	        int serialNumber = 1;
+	        for (Inventory item : inventoryList) {
+	            writer.append(serialNumber + ",")  // Serial Number instead of Pid
+	                  .append(item.getName() + ",")
+	                  .append(item.getQuantity() + ",")
+	                  .append(item.getPrice() + "\n");
+	            serialNumber++;  // Increment serial number for the next row
+	        }
+
+	        System.out.println("Inventory report saved at: " + filePath);
+	        return filePath;
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return "Error generating report!";
+	    }
+	}
+
+	
+	
+
+}
